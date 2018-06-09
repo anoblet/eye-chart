@@ -1,0 +1,19 @@
+{
+  "name": "eye-chart",
+  "version": "1.0.0",
+  "description": "Eye Chart",
+  "main": "eye-chart.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anoblet/eye-chart.git"
+  },
+  "author": "Andrew Noblet",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anoblet/eye-chart/issues"
+  },
+  "homepage": "https://github.com/anoblet/eye-chart#readme"
+}
