@@ -1,5 +1,5 @@
 {
-  "name": "eye-chart",
+  "name": "@anoblet/eye-chart",
   "version": "1.0.0",
   "description": "Eye Chart",
   "main": "eye-chart.js",

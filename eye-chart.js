@@ -1,5 +1,6 @@
 import { html, LitElement } from '@polymer/lit-element';
 import { repeat } from 'lit-html/lib/repeat.js';
+import '@polymer/paper-slider/paper-slider.js';
 
 const characters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
@@ -7,6 +8,8 @@ class EyeChart extends LitElement {
   constructor() {
     super();
     this.scale = 100;
+    this.chart = [];
+    // this._boundListener = this._scaleChanged.bind(this);
   }
 
   static get properties() {
@@ -16,9 +19,13 @@ class EyeChart extends LitElement {
     }
   }
 
+  // Helpers
+
   _getRandom(items) {
     return items[Math.floor(Math.random() * items.length)];
   }
+
+  // Models
 
   _getLine(numberOfChars) {
     let line = []
@@ -36,12 +43,21 @@ class EyeChart extends LitElement {
     return chart;
   }
 
+  // Events
+
+  _scaleChanged(e) {
+    this.scale = e.target.value;
+  }
+
+  // Template
+
   _styles() {
     return html`
       <style>
         :host {
           display: block
         }
+      
         li {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
@@ -62,23 +78,31 @@ class EyeChart extends LitElement {
     `
   }
 
-  _renderChart(chart) {
+  _renderOptions(scale) {
+    return html`
+      <paper-slider value="${scale}" on-value-changed="${(e) => this.scale = e.target.value}"></paper-slider>
+      Scale: ${scale}
+    `
+  }
+
+  _renderChart(chart, scale) {
     return html`
       <ul>
         ${repeat(chart, (line) => html`
-          <li style$="font-size: ${this.scale / line.length}vmin">
-            ${this._renderLine(line)}
-          </li>
+        <li style$="font-size: ${scale / line.length}vmin">
+          ${this._renderLine(line)}
+        </li>
         `)}
       </ul>
     `
   }
 
-  _render({ scale }) {
-    let chart = this._getChart(this.line, this.line, scale);
+  _render({ scale, line }) {
+    let chart = this._getChart(line, line, scale);
     return html`
-      ${this._styles()}
-      ${this._renderChart(chart)}
+       ${this._styles()} 
+       ${this._renderOptions(scale)} 
+       ${this._renderChart(chart, scale)}
     `
   }
 }
