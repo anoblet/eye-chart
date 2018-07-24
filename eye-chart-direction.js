@@ -1,97 +1,184 @@
 import { html, LitElement } from '@polymer/lit-element';
 import { repeat } from 'lit-html/lib/repeat.js';
 import '@polymer/paper-slider/paper-slider.js';
-import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
-// import 'web-animations-js/web-animations-next-lite.min.js';
-import '@polymer/neon-animation/neon-animations.js';
+import '../../@anoblet/component-ruler/component-ruler.js';
 
 class EyeChartDirection extends LitElement {
   constructor() {
     super();
-    this.displaySize = 'true';
-    this.length = 10;
-    this.type = 'symbol';
-    this.isUpper = 'true';
+    this.displaySize = true;
+    this.type = 'arrow';
+    this.isUpper = true;
     this.distanceFromScreen = 10;
+    this.showRuler = false;
+    this.lineCount = 10;
+    this.startingSize = 1;
+    this.step = .2;
+    this.sizeX = 'left';
+    this.unit = 'in';
   }
 
   static get properties() {
     return {
-      displaySize: String,
-      length: Number,
-      type: String,
-      isUpper: String,
-      distanceFromScreen: Number
+      displaySize: {
+        type: Boolean,
+        inputType: 'checkbox',
+        inputLabel: 'Display size'
+      },
+      type: {
+        type: String,
+        inputType: 'select',
+        inputLabel: 'Symbol type',
+        inputValues: [
+          {
+            label: 'Character',
+            value: 'character'
+          },
+          {
+            label: 'Arrow',
+            value: 'arrow'
+          }
+        ]
+      },
+      isUpper: {
+        type: Boolean,
+        inputType: 'checkbox',
+        inputLabel: 'Is uppercase',
+        depends: [
+          {
+            property: 'type',
+            value: 'character',
+            /* type: 'character' */
+          }
+        ]
+      },
+      /*
+      distanceFromScreen: {
+        type: Number,
+        inputType: 'slider',
+        inputLabel: "Distance from screen"
+      },
+      */
+      showRuler: {
+        type: Boolean,
+        inputType: 'checkbox',
+        inputLabel: 'Show ruler'
+      },
+      lineCount: {
+        type: Number,
+        inputType: 'counter',
+        inputLabel: 'Number of lines'
+      },
+      startingSize: {
+        type: Number,
+        inputType: 'text',
+        inputLabel: 'Starting size'
+      },
+      step: {
+        type: Number,
+        inputType: 'text',
+        inputLabel: 'Step'
+      },
+      sizeX: {        
+        type: String,
+        inputType: 'select',
+        inputLabel: 'Position of size',
+        inputValues: [
+          {
+            label: 'Left',
+            value: 'left'
+          },
+          {
+            label: 'Right',
+            value: 'right'
+          }
+        ]
+      },
+      unit: {
+        type: String,
+        inputType: 'text',
+        inputLabel: 'Unit'
+      }
     }
   }
 
-  _getRandomSymbol({type, isUpper}) {
+  _getRandomSymbol(props) {
     let symbols = {};
     symbols.character = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-    symbols.symbol = [html`&larr;`, html`&uarr;`, html`&rarr;`, html`&darr;`]
+    symbols.arrow = [html`&larr;`, html`&uarr;`, html`&rarr;`, html`&darr;`]
 
-    let items = symbols[type];
+    let items = symbols[props.type];
     var item = items[Math.floor(Math.random()*items.length)];
     
-    if(type == 'character' & isUpper == 'true') item = item.toUpperCase();
+    if(props.type == 'character' & props.isUpper) item = item.toUpperCase();
 
     return item;
   }
 
-  _renderDisplaySize({index, displaySize}) {
-    if(displaySize == 'true') {
-      return html`(${(index+1)/10} in.)`
-    }
-  }
+  _renderOptions(props) {
+    const properties = this.constructor.properties;
+    const keys = Object.keys(properties);
+    const values = Object.values(properties);
 
-  _renderOptions({length, type, displaySize, isUpper, distanceFromScreen}) {
     return html`
     <ul>
-      <li>
-      Length: ${length}
-      <paper-slider value="${length}" on-value-changed="${(e) => this.length = e.target.value}"></paper-slider>
-      </li>
-      <li>
-      Type: ${type}
-      <paper-dropdown-menu label="Type">
-        <paper-listbox slot="dropdown-content" selected="1">
-          <paper-item>Character</paper-item>
-          <paper-item>Symbol</paper-item>
-        </paper-listbox>
-      </paper-dropdown-menu>
-      <select on-change="${(e) => this.type = e.target.value}">
-        <option value="character" selected?="${type == 'character'}">Character</option>
-        <option value="symbol" selected?="${type == 'symbol'}">Symbol</option>
-      </select>
-      ${type == 'character' ? html`
-      <ul>
-      <li>
-        Uppercase: ${isUpper}
-        <select on-change="${(e) => this.isUpper = e.target.value}">
-          <option value="true" selected?="${isUpper == 'true'}">True</option>
-          <option value="false" selected?="${isUpper == 'false'}">False</option>
-        </select>
-        </li></ul>
-      ` : ''}
-      </li>
-      <li>
-      Display size: ${displaySize}
-      <select on-change="${(e) => this.displaySize = e.target.value}">
-        <option value="true">True</option>
-        <option value="false">False</option>
-      </select>
-      </li>
-      <li>
-      Distance from screen: ${distanceFromScreen} (ft.)
-      <paper-slider value="${distanceFromScreen}" step="0.1" max="20" on-value-changed="${(e) => this.distanceFromScreen = e.target.value}"></paper-slider>
-      </li>
-      </ul>
+      ${repeat(keys, (property, index) => {
+        if(properties[property].depends) {
+          for(let depend in properties[property].depends) {
+            if(this[properties[property].depends[depend].property] !== properties[property].depends[depend].value) return;
+          }
+        }
+        return html`
+        <li>
+          <label>${values[index].inputLabel}</label>
+          ${values[index].inputType === 'text' ? html`
+            <input value$="${props[property]}" on-change="${(e) => this[property] = e.target.value}" / >
+          ` : ''}
+          <!-- Deals with booleans -->
+          ${values[index].inputType === 'checkbox' ? html`
+            <input type="checkbox" checked?="${this[property]}" on-change="${(e) => this[property] = e.target.checked}" / >
+          ` : ''}
+          ${values[index].inputType === 'counter' ? html`
+            <button on-click="${(e) => this[property]--}">-</button>
+            ${props[property]}
+            <button on-click="${(e) => this[property]++}">+</button>
+          ` : ''}
+          ${values[index].inputType === 'select' ? html`
+          <select on-change="${(e) => this[property] = e.target.value}">
+            ${repeat(values[index].inputValues, (option) => {
+              return html`
+                <option value="${option.value}" selected?="${option.value === props[property]}">${option.label}</option>
+              `
+            })}
+          </select>
+          ` : ''}
+          ${values[index].inputType === 'slider' ? html`
+            <paper-slider on-change="${(e) => this[property] = e.target.checked}"></paper-slider>
+          ` : ''}
+        </li>
+      `})}
+    </ul>
+    `
+  }
+
+  _renderOption(prop) {
+    return html`
+      
     `;
   }
 
-  _render({length, type, isUpper, displaySize, distanceFromScreen}) {
+  _doesDepend() {
+
+  }
+
+  _render(props) {
     return html`
       <style>
+        :host {
+          position: relative;
+          overflow-x: hidden;
+          max-width: 100%;
+        }
         ul {
           list-style-type: none;
         }
@@ -101,11 +188,11 @@ class EyeChartDirection extends LitElement {
 
         #options {
           /* float: left; */
+          background: #fff;
         }
 
         #options ul {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+
         }
 
         #options li {
@@ -113,18 +200,30 @@ class EyeChartDirection extends LitElement {
         }
       </style>
       <div id="options">
-        ${this._renderOptions({length, type, displaySize, isUpper, distanceFromScreen})}
+        ${this._renderOptions(props)}
       </div>
+      ${props.showRuler ? html`
+        <component-ruler direction="vertical" style="float: left"></component-ruler><component-ruler direction="horizontal">
+      ` : ''}
       <ul>
-          ${repeat(Array.from(Array(length)), (line, index) => {
+          ${repeat(Array.from(Array(props.lineCount)), (line, index) => {
             return html`
-              <li style="font-size: ${(index+1)/10}in">
-              ${this._renderDisplaySize({index, displaySize})}
+              <li style="font-size: ${Number(props.startingSize) + (index * Number(props.step))}in">
+                ${props.displaySize ? html`
+                  ${props.sizeX === 'left' ? html`
+                    (${Number(props.startingSize) + (index * Number(props.step))} in.)
+                  ` : ''}
+                ` : ''}
                 ${repeat(Array.from(Array(index+1)), (letter) => {
                   return html`
-                    ${this._getRandomSymbol({type, isUpper})}
+                    ${this._getRandomSymbol(props)}
                   `
                 })}
+                ${props.displaySize ? html`
+                  ${props.sizeX === 'right' ? html`
+                    (${Number(props.startingSize) + (index * Number(props.step))} in.)
+                  ` : ''}
+                ` : ''}
               </li>
               `
           })}
