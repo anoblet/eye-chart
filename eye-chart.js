@@ -98,7 +98,7 @@ class EyeChart extends LitElement {
   }
 
   render(props) {
-    this._render(props);
+    return this._render(props);
   }
 
   _render({ scale, line }) {
