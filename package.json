@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/anoblet/eye-chart/issues"
   },
-  "homepage": "https://github.com/anoblet/eye-chart#readme"
+  "homepage": "https://github.com/anoblet/eye-chart#readme",
+  "dependencies": {
+    "@polymer/lit-element": "^0.6.2",
+    "@polymer/paper-slider": "^3.0.1",
+    "lit-html": "^0.12.0"
+  }
 }
