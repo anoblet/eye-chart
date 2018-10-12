@@ -97,6 +97,10 @@ class EyeChart extends LitElement {
     `
   }
 
+  render(props) {
+    this._render(props);
+  }
+
   _render({ scale, line }) {
     let chart = this._getChart(line, line, scale);
     return html`
